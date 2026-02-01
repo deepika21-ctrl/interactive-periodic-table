@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Interactive Periodic Table</title>
+  <meta charset="UTF-8" />
+  <title>Interactive Periodic Table</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Periodic Table</h1>
+    <p>Interactive periodic table for learning chemistry</p>
+
+    <div class="controls">
+      <input id="searchInput" type="text" placeholder="Search: H, Hydrogen, 1..." />
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+      </select>
+      <button id="resetBtn" type="button">Reset</button>
+    </div>
+  </header>
+
+  <section id="legend" class="legend"></section>
+
+  <main>
+    <section class="table-wrap">
+      <h2>Peroidic Table</h2>
+      <div id="periodic-table" class="table"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="modalBackdrop" class="backdrop hidden"></div>
+
+  <div id="elementModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3 id="modalTitle">Element</h3>
+      <button id="closeModal" class="close-btn">✕</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+  </div>
+
+  <script src="script.js"></script>
+  <footer class="footer">
+  <p>Built with HTML, CSS & JavaScript</p>
+</footer>
+</body>
+</html>
