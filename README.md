@@ -14,5 +14,6 @@ Interactive periodic table website built using HTML, CSS and JavaScript.
 HTML, CSS (Grid), JavaScript
 
 ## Live Demo
-(After deployment, paste your GitHub Pages link here)
+https://deepika21-ctrl.github.io/interactive-periodic-table/
+
 
