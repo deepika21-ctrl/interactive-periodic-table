@@ -1,23 +1,5 @@
 // --------------------
-// DATA (starter 10 with real positions)
-// --------------------
-const elements = [
-  { atomicNumber: 1,  symbol: "H",  name: "Hydrogen",  atomicMass: "1.008",  category: "Non-metal",            valency: 1, group: 1,  period: 1 },
-  { atomicNumber: 2,  symbol: "He", name: "Helium",    atomicMass: "4.0026", category: "Noble Gas",           valency: 0, group: 18, period: 1 },
-
-  { atomicNumber: 3,  symbol: "Li", name: "Lithium",   atomicMass: "6.94",   category: "Alkali Metal",        valency: 1, group: 1,  period: 2 },
-  { atomicNumber: 4,  symbol: "Be", name: "Beryllium", atomicMass: "9.0122", category: "Alkaline Earth Metal",valency: 2, group: 2,  period: 2 },
-
-  { atomicNumber: 5,  symbol: "B",  name: "Boron",     atomicMass: "10.81",  category: "Metalloid",           valency: 3, group: 13, period: 2 },
-  { atomicNumber: 6,  symbol: "C",  name: "Carbon",    atomicMass: "12.011", category: "Non-metal",           valency: 4, group: 14, period: 2 },
-  { atomicNumber: 7,  symbol: "N",  name: "Nitrogen",  atomicMass: "14.007", category: "Non-metal",           valency: 3, group: 15, period: 2 },
-  { atomicNumber: 8,  symbol: "O",  name: "Oxygen",    atomicMass: "15.999", category: "Non-metal",           valency: 2, group: 16, period: 2 },
-  { atomicNumber: 9,  symbol: "F",  name: "Fluorine",  atomicMass: "18.998", category: "Halogen",             valency: 1, group: 17, period: 2 },
-  { atomicNumber: 10, symbol: "Ne", name: "Neon",      atomicMass: "20.180", category: "Noble Gas",           valency: 0, group: 18, period: 2 }
-];
-
-// --------------------
-// CATEGORY COLORS (stronger)
+// CATEGORY COLORS (expanded for full table)
 // --------------------
 const categoryColors = {
   "Non-metal": "#38bdf8",
@@ -25,7 +7,12 @@ const categoryColors = {
   "Alkali Metal": "#fb7185",
   "Alkaline Earth Metal": "#fbbf24",
   "Metalloid": "#34d399",
-  "Halogen": "#fb923c"
+  "Halogen": "#fb923c",
+  "Transition Metal": "#60a5fa",
+  "Post-transition Metal": "#a3e635",
+  "Lanthanide": "#f472b6",
+  "Actinide": "#fca5a5",
+  "Unknown": "#94a3b8"
 };
 
 // --------------------
@@ -43,6 +30,36 @@ const elementModal = document.getElementById("elementModal");
 const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
 const closeModalBtn = document.getElementById("closeModal");
+
+// --------------------
+// STATE
+// --------------------
+let elements = []; // loaded from elements.json
+
+// --------------------
+// HELPERS
+// --------------------
+function normalizeCategory(cat) {
+  if (!cat) return "Unknown";
+  const c = String(cat).toLowerCase();
+
+  if (c.includes("noble gas")) return "Noble Gas";
+  if (c.includes("alkali metal")) return "Alkali Metal";
+  if (c.includes("alkaline earth metal")) return "Alkaline Earth Metal";
+  if (c.includes("halogen")) return "Halogen";
+  if (c.includes("metalloid")) return "Metalloid";
+  if (c.includes("lanthanide")) return "Lanthanide";
+  if (c.includes("actinide")) return "Actinide";
+  if (c.includes("transition metal")) return "Transition Metal";
+  if (c.includes("post-transition metal")) return "Post-transition Metal";
+  if (c.includes("nonmetal")) return "Non-metal";
+
+  return "Unknown";
+}
+
+function getColorForCategory(category) {
+  return categoryColors[category] || categoryColors["Unknown"];
+}
 
 // --------------------
 // LEGEND
@@ -64,6 +81,8 @@ function renderLegend() {
 // DROPDOWN
 // --------------------
 function populateCategoryDropdown() {
+  categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+
   const cats = [...new Set(elements.map(e => e.category))].sort();
   cats.forEach(cat => {
     const option = document.createElement("option");
@@ -78,12 +97,17 @@ function populateCategoryDropdown() {
 // --------------------
 function openModal(el) {
   modalTitle.textContent = `${el.name} (${el.symbol})`;
+
+  // Keep it clean: show the most useful properties
   modalBody.innerHTML = `
     <div class="kv"><div class="k">Atomic Number</div><div class="v">${el.atomicNumber}</div></div>
-    <div class="kv"><div class="k">Atomic Mass</div><div class="v">${el.atomicMass}</div></div>
+    <div class="kv"><div class="k">Atomic Mass</div><div class="v">${el.atomicMass ?? "—"}</div></div>
     <div class="kv"><div class="k">Category</div><div class="v">${el.category}</div></div>
-    <div class="kv"><div class="k">Valency</div><div class="v">${el.valency}</div></div>
+    <div class="kv"><div class="k">Phase</div><div class="v">${el.phase ?? "—"}</div></div>
+    <div class="kv"><div class="k">Group</div><div class="v">${el.group ?? "—"}</div></div>
+    <div class="kv"><div class="k">Period</div><div class="v">${el.period ?? "—"}</div></div>
   `;
+
   modalBackdrop.classList.remove("hidden");
   elementModal.classList.remove("hidden");
 }
@@ -94,7 +118,7 @@ function closeModal() {
 }
 
 // --------------------
-// RENDER (real periodic layout)
+// RENDER (uses xpos/ypos for correct placement)
 // --------------------
 function renderTable(list) {
   table.innerHTML = "";
@@ -105,14 +129,14 @@ function renderTable(list) {
   }
 
   const cols = 18;
-  const maxPeriod = Math.max(...list.map(e => e.period));
+  const maxY = Math.max(...elements.map(e => e.ypos)); // full table height
 
   const posMap = new Map();
-  list.forEach(el => posMap.set(`${el.period}-${el.group}`, el));
+  list.forEach(el => posMap.set(`${el.ypos}-${el.xpos}`, el));
 
-  for (let p = 1; p <= maxPeriod; p++) {
-    for (let g = 1; g <= cols; g++) {
-      const key = `${p}-${g}`;
+  for (let y = 1; y <= maxY; y++) {
+    for (let x = 1; x <= cols; x++) {
+      const key = `${y}-${x}`;
       const el = posMap.get(key);
 
       if (!el) {
@@ -125,7 +149,7 @@ function renderTable(list) {
       const card = document.createElement("div");
       card.className = "element";
 
-      const color = categoryColors[el.category] || "#94a3b8";
+      const color = getColorForCategory(el.category);
       card.style.backgroundColor = color + "33";
       card.style.borderColor = color;
       card.style.setProperty("--glow", color);
@@ -165,6 +189,30 @@ function applyFilters() {
 }
 
 // --------------------
+// LOAD DATA (elements.json must be in repo root)
+// --------------------
+async function loadElements() {
+  const res = await fetch("elements.json", { cache: "no-store" });
+  if (!res.ok) throw new Error("Could not load elements.json");
+
+  const data = await res.json();
+  const raw = data.elements || [];
+
+  elements = raw.map(e => ({
+    atomicNumber: e.number,
+    symbol: e.symbol,
+    name: e.name,
+    atomicMass: e.atomic_mass,
+    phase: e.phase,
+    category: normalizeCategory(e.category),
+    group: e.group,
+    period: e.period,
+    xpos: e.xpos,
+    ypos: e.ypos
+  }));
+}
+
+// --------------------
 // EVENTS
 // --------------------
 searchInput.addEventListener("input", applyFilters);
@@ -186,6 +234,17 @@ document.addEventListener("keydown", (e) => {
 // --------------------
 // INIT
 // --------------------
-renderLegend();
-populateCategoryDropdown();
-applyFilters();
+(async function init() {
+  renderLegend();
+
+  try {
+    await loadElements();
+    populateCategoryDropdown();
+    applyFilters();
+  } catch (err) {
+    table.innerHTML = `<div style="padding:12px; color:#fca5a5;">
+      Error loading elements dataset. Make sure <b>elements.json</b> is uploaded in the repo root.
+    </div>`;
+    console.error(err);
+  }
+})();
