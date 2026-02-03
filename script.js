@@ -131,8 +131,12 @@ function renderTable(list) {
   const cols = 18;
   const maxY = Math.max(...elements.map(e => e.ypos)); // full table height
 
-  const posMap = new Map();
-  list.forEach(el => posMap.set(`${el.ypos}-${el.xpos}`, el));
+ const posMap = new Map();
+list.forEach(el => {
+  const shift = (el.ypos === 8 || el.ypos === 9) ? 3 : 0; // centers Lan/Act rows
+  posMap.set(`${el.ypos}-${el.xpos + shift}`, el);
+});
+
 
   for (let y = 1; y <= maxY; y++) {
     for (let x = 1; x <= cols; x++) {
@@ -248,3 +252,4 @@ document.addEventListener("keydown", (e) => {
     console.error(err);
   }
 })();
+
