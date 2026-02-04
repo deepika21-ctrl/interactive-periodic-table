@@ -33,7 +33,8 @@ header p{
   justify-content: center;
 }
 
-.controls input, .controls select{
+.controls input,
+.controls select{
   padding: 12px 12px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.18);
@@ -58,7 +59,7 @@ header p{
 
 /* Legend */
 .legend{
-  max-width: 1100px;
+  max-width: 1000px;
   margin: 16px auto 6px;
   display: flex;
   flex-wrap: wrap;
@@ -85,7 +86,7 @@ header p{
   border-radius: 4px;
 }
 
-/* Main */
+/* Table container */
 main{
   padding: 8px 16px 40px;
 }
@@ -101,21 +102,25 @@ main{
   font-weight: 800;
 }
 
-/* Wrapper (no scrollbar) */
+/* This wrapper is what we scroll on small screens */
 .table-wrapper{
-  overflow: hidden;
-  padding: 10px 0;
+  width: 100%;
+  overflow-x: hidden; /* desktop default */
 }
 
-/* ✅ ONE grid definition (18 columns exact) */
+/* ✅ ONE single grid system (no duplicates) */
 #periodic-table{
-  display: grid;
-  grid-template-columns: repeat(18, minmax(0, 1fr));
-  grid-auto-rows: clamp(56px, 5.2vw, 96px);
-  gap: clamp(6px, 0.8vw, 12px);
+  --cell: 72px;
+  --gap: 12px;
 
-  width: 100%;
-  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(18, var(--cell));
+  grid-auto-rows: var(--cell);
+  gap: var(--gap);
+
+  justify-content: center;
+  align-content: start;
+
   padding: 10px;
 }
 
@@ -124,22 +129,23 @@ main{
   visibility: hidden;
 }
 
-/* Element cards */
+/* ✅ CLEAN ELEMENT TILE (no leaking text) */
 .element{
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  overflow: hidden;
-
-  border-radius: 14px;
-  padding: clamp(6px, 0.7vw, 10px);
+  width: var(--cell);
+  height: var(--cell);
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
 
-  cursor: pointer;
+  border-radius: 14px;
+  padding: 6px;
+
   border: 2px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+
+  overflow: hidden; /* ✅ prevents messy text outside */
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
@@ -156,32 +162,34 @@ main{
   transform: translateY(-1px) scale(0.99);
 }
 
+/* Text inside tiles */
 .element .no{
-  font-size: clamp(10px, 1vw, 12px);
-  opacity: 0.9;
+  font-size: 11px;
+  opacity: 0.85;
+  align-self: flex-start;
 }
 
 .element .symbol{
-  font-size: clamp(16px, 2.2vw, 30px);
+  font-size: 26px;
   font-weight: 900;
-  color: #fff;
   line-height: 1;
+  color: #fff;
   text-shadow: 0 0 12px rgba(255,255,255,0.25);
 }
 
 .element .name{
-  font-size: clamp(9px, 0.95vw, 12px);
-  opacity: 0.95;
-
+  font-size: 11px;
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-/* ✅ Fix for 3-letter symbols like Uue */
+/* ✅ Fix for 3-letter symbols (Uue etc.) */
 .element.wide-symbol .symbol{
-  font-size: clamp(12px, 1.8vw, 22px);
-  letter-spacing: 0.5px;
+  font-size: 20px;
+  letter-spacing: -0.5px;
 }
 
 /* Modal */
@@ -259,23 +267,29 @@ main{
   color: #9ca3af;
 }
 
-/* ✅ Safe mobile readability (structure unchanged) */
-@media (max-width: 600px){
-  header h1{ font-size: 34px; }
+/* ✅ Tablet */
+@media (max-width: 1100px){
+  #periodic-table{
+    --cell: 58px;
+    --gap: 10px;
+  }
+}
+
+/* ✅ Mobile: keep exact structure → allow horizontal scroll instead of breaking layout */
+@media (max-width: 700px){
+  .table-wrapper{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+  }
 
   #periodic-table{
-    grid-auto-rows: clamp(42px, 7.2vw, 60px);
-    gap: 6px;
-    padding: 6px;
+    --cell: 46px;
+    --gap: 8px;
+    width: max-content; /* important: stops squishing and keeps perfect grid */
   }
 
-  .element{
-    border-radius: 12px;
-    padding: 6px;
-  }
-
-  /* Optional: hide names on very small screens to prevent crowding */
-  .element .name{
-    display: none;
-  }
+  .element .symbol{ font-size: 18px; }
+  .element.wide-symbol .symbol{ font-size: 15px; }
+  .element .name{ font-size: 9px; }
 }
