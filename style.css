@@ -102,8 +102,7 @@ main{
 }
 
 .table-scroll{
-  overflow-x: auto;
-  padding-bottom: 10px;
+  overflow-x: hidden;
 }
 
 /* Periodic grid */
@@ -252,3 +251,12 @@ main{
   .element .symbol{ font-size: 18px; }
   .element.wide-symbol .symbol{ font-size: 14px; }
 }
+/* Enable horizontal scroll only on smaller screens */
+@media (max-width: 1200px){
+  .table-scroll{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px;
+  }
+}
+
