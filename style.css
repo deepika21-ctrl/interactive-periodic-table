@@ -131,26 +131,23 @@ main{
   visibility: hidden;
 }
 
-/* Element cards */
+/* =========================================================
+   Element cards (FINAL CLEAN VERSION)
+   ========================================================= */
 .element{
   width: var(--cell);
   height: var(--cell);
-  box-sizing: border-box;
   border-radius: 14px;
+  padding: 8px;
+  box-sizing: border-box;
 
-  /* UPDATED: more inner safety so text never touches border */
-  padding: 10px;
-
-  /* perfect centering */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
 
-  /* atomic number can sit without affecting centering */
   position: relative;
-
   cursor: pointer;
   border: 2px solid rgba(255,255,255,0.12);
 
@@ -170,7 +167,7 @@ main{
   transform: translateY(-1px) scale(0.99);
 }
 
-/* atomic number */
+/* Atomic number in corner */
 .element .no{
   position: absolute;
   top: 6px;
@@ -180,42 +177,32 @@ main{
   opacity: 0.9;
 }
 
-/* Symbol (UPDATED: width cap + centered + optical centering) */
+/* Symbol: centered, never touches border */
 .element .symbol{
+  font-size: 26px;
   font-weight: 900;
   color: #fff;
   line-height: 1;
   text-shadow: 0 0 12px rgba(255,255,255,0.25);
 
-  /* UPDATED: prevents touching border even for wide symbols */
-  max-width: 80%;
-  margin: 0 auto;
-  padding: 0 2px;
-
+  padding: 0 4px;          /* breathing space so no touching */
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
 
-  font-size: 26px;
-
-  /* UPDATED: optical centering */
+  /* optical centering */
   transform: translateY(1px);
 }
 
-/* UPDATED: 3-letter symbols like Uue */
+/* Only for 3-letter symbols like Uue */
 .element.wide-symbol .symbol{
   font-size: 18px;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
 }
 
+/* Keep tiles clean: hide element names inside tiles */
 .element .name{
-  font-size: 11px;
-  line-height: 1.1;
-  opacity: 0.95;
-  max-width: 100%;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: none;
 }
 
 /* Modal */
@@ -295,7 +282,7 @@ main{
 
 @media (max-width: 600px) {
   .element{
-    padding: 8px; /* keep some safety on small screens */
+    padding: 6px;
     gap: 4px;
   }
 
@@ -306,28 +293,23 @@ main{
   }
 
   .element .symbol{
-    line-height: 1;
-    max-width: 82%;
+    font-size: 22px;
   }
 
   .element.wide-symbol .symbol{
     font-size: 16px;
-  }
-
-  .element .name{
-    display: none;
   }
 }
 
 /* Tablet polish (between mobile and desktop) */
 @media (min-width: 601px) and (max-width: 1024px) {
   #periodic-table{
-    --cell: 56px;     /* slightly smaller than desktop */
+    --cell: 56px;
     --gap: 8px;
   }
 
   .element{
-    padding: 8px;
+    padding: 6px;
     border-radius: 12px;
   }
 
@@ -337,15 +319,9 @@ main{
 
   .element .symbol{
     font-size: 22px;
-    max-width: 82%;
   }
 
   .element.wide-symbol .symbol{
     font-size: 17px;
-  }
-
-  .element .name{
-    font-size: 11px;
-    display: block;
   }
 }
