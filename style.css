@@ -140,7 +140,7 @@ main{
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
 
   cursor: pointer;
   border: 2px solid rgba(255,255,255,0.12);
@@ -260,6 +260,25 @@ main{
 .element.wide-symbol .symbol{
   font-size: 20px;
   letter-spacing: 0.4px;
+}
+
+@media (max-width: 600px) {
+  .element{
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .element .no{
+    font-size: 10px;
+  }
+
+  .element .symbol{
+    line-height: 1;
+  }
+
+  .element .name{
+    display: none;
+  }
 }
 
 
