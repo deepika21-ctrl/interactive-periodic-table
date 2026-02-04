@@ -276,8 +276,9 @@ main{
    ========================================================= */
 @media (min-width: 1025px){
   html, body{
-    height: 100%;
-    overflow: hidden; /* remove vertical + horizontal scrollbars */
+    height: auto;
+    overflow-x: hidden;   /* no horizontal scroll */
+    overflow-y: auto;     /* allow vertical scroll */
   }
 
   body{
@@ -314,9 +315,10 @@ main{
   }
 
   .table-scroll{
-    height: 100%;
-    overflow: hidden;    /* no scrollbars on desktop */
-    padding-bottom: 0;
+  overflow-x: hidden;   /* no horizontal scroll */
+  overflow-y: visible; /* let content flow vertically */
+}
+
 
     display: flex;
     justify-content: center;
@@ -331,3 +333,4 @@ main{
     padding: 8px;
   }
 }
+
