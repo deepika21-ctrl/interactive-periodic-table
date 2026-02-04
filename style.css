@@ -258,4 +258,37 @@ main{
     min-width: 1200px; /* preserves layout */
   }
 }
+/* Exact 18-column periodic grid that scales to the screen */
+#periodic-table{
+  --grid-gap: clamp(4px, 0.6vw, 10px);
+  --cell: clamp(22px, calc((100vw - 48px - (17 * var(--grid-gap))) / 18), 72px);
+
+  display: grid;
+  grid-template-columns: repeat(18, var(--cell));
+  grid-auto-rows: var(--cell);
+  gap: var(--grid-gap);
+
+  justify-content: center; /* keeps it centered on large screens */
+  align-content: start;
+}
+
+/* Make each tile fit nicely inside a square cell */
+.element{
+  width: var(--cell);
+  height: var(--cell);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+/* Scale text for tiny mobile cells */
+.element .no{
+  font-size: clamp(10px, 1.2vw, 14px);
+}
+.element .symbol{
+  font-size: clamp(12px, 2.2vw, 24px);
+}
+.element .name{
+  font-size: clamp(9px, 1.2vw, 12px);
+}
+
 
