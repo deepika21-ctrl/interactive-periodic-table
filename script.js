@@ -123,19 +123,47 @@ function closeModal() {
 function renderTable(list) {
   table.innerHTML = "";
 
-  if (!list || list.length === 0) {
-    table.innerHTML = `<div style="padding:12px; color:#cbd5f5;">No elements match your search/filter.</div>`;
-    return;
-  }
-
   const cols = 18;
-  const maxY = Math.max(...elements.map(e => e.ypos)); // full table height
+  const maxPeriod = Math.max(...list.map(e => e.ypos));
 
- const posMap = new Map();
-list.forEach(el => {
- posMap.set(`${el.ypos}-${el.xpos}`, el);
+  // Map elements by exact grid position
+  const posMap = new Map();
+  list.forEach(el => {
+    posMap.set(`${el.ypos}-${el.xpos}`, el);
+  });
 
-});
+  for (let period = 1; period <= maxPeriod; period++) {
+    for (let group = 1; group <= cols; group++) {
+      const key = `${period}-${group}`;
+      const el = posMap.get(key);
+
+      if (!el) {
+        const empty = document.createElement("div");
+        empty.className = "empty-cell";
+        table.appendChild(empty);
+        continue;
+      }
+
+      const card = document.createElement("div");
+      card.className = "element";
+
+      const color = categoryColors[el.category] || "#94a3b8";
+      card.style.backgroundColor = color + "33";
+      card.style.borderColor = color;
+      card.style.setProperty("--glow", color);
+
+      card.innerHTML = `
+        <div class="no">${el.number}</div>
+        <div class="symbol">${el.symbol}</div>
+        <div class="name">${el.name}</div>
+      `;
+
+      card.addEventListener("click", () => openModal(el));
+      table.appendChild(card);
+    }
+  }
+}
+
 
 
   for (let y = 1; y <= maxY; y++) {
@@ -252,5 +280,6 @@ document.addEventListener("keydown", (e) => {
     console.error(err);
   }
 })();
+
 
 
