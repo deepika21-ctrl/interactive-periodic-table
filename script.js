@@ -79,49 +79,7 @@ function openModal(el){
 function closeModal(){
   modalBackdrop.classList.add("hidden");
   elementModal.classList.add("hidden");
-}
-
-/* ---------- DESKTOP FIT (reliable) ---------- */
-/* Scales table based on actual container size (not header math) */
-function fitTableToDesktopScreen(){
-  const isDesktop = window.matchMedia("(min-width: 1025px)").matches;
-  const container = document.querySelector(".table-scroll");
-  if(!container || !table) return;
-
-  if(!isDesktop){
-    table.style.transform = "";
-    return;
-  }
-
-  // reset before measuring
-  table.style.transform = "";
-
-  // container available space
-  const cw = container.clientWidth;
-  const ch = container.clientHeight;
-
-  // natural table size
-  const rect = table.getBoundingClientRect();
-  const tw = rect.width;
-  const th = rect.height;
-
-  if(!tw || !th || !cw || !ch) return;
-
-  // small safety padding so it never touches edges
-  const safety = 16;
-  const scale = Math.min(1, (cw - safety) / tw, (ch - safety) / th);
-
-  table.style.transform = `scale(${scale})`;
-}
-
-let rafId = null;
-function scheduleFit(){
-  if(rafId) cancelAnimationFrame(rafId);
-  rafId = requestAnimationFrame(()=>{
-    fitTableToDesktopScreen();
-    rafId = null;
-  });
-}
+} 
 
 /* ---------- RENDER ---------- */
 function renderTable(list){
@@ -163,50 +121,6 @@ function renderTable(list){
     }
   }
 
-  scheduleFit();
-}
-
-/* ---------- FILTERS ---------- */
-function applyFilters(){
-  const q = searchInput.value.toLowerCase().trim();
-  const cat = categoryFilter.value;
-
-  const filtered = elements.filter(el =>
-    (cat === "all" || el.category === cat) &&
-    (
-      q === "" ||
-      el.name.toLowerCase().includes(q) ||
-      el.symbol.toLowerCase().includes(q) ||
-      String(el.number) === q
-    )
-  );
-
-  renderTable(filtered);
-}
-
-/* ---------- INIT ---------- */
-(async function(){
-  renderLegend();
-
-  const res = await fetch("elements.json");
-  const data = await res.json();
-
-  elements = data.elements.map(e=>({
-    ...e,
-    category: normalizeCategory(e.category)
-  }));
-
-  categoryFilter.innerHTML =
-    `<option value="all">All Categories</option>` +
-    [...new Set(elements.map(e=>e.category))]
-      .map(c=>`<option value="${c}">${c}</option>`).join("");
-
-  applyFilters();
-
-  // Fit after first paint
-  setTimeout(scheduleFit, 0);
-})();
-
 searchInput.addEventListener("input", applyFilters);
 categoryFilter.addEventListener("change", applyFilters);
 resetBtn.addEventListener("click", ()=>{
@@ -219,4 +133,5 @@ closeModalBtn.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", closeModal);
 document.addEventListener("keydown", (e)=> e.key === "Escape" && closeModal());
 
-window.addEventListener("resize", scheduleFit);
+
+
