@@ -133,8 +133,8 @@ function renderTable(list) {
 
  const posMap = new Map();
 list.forEach(el => {
-  const shift = (el.ypos === 8 || el.ypos === 9) ? 3 : 0; // centers Lan/Act rows
-  posMap.set(`${el.ypos}-${el.xpos + shift}`, el);
+ posMap.set(`${el.ypos}-${el.xpos}`, el);
+
 });
 
 
@@ -252,4 +252,5 @@ document.addEventListener("keydown", (e) => {
     console.error(err);
   }
 })();
+
 
