@@ -1,4 +1,4 @@
-* { box-sizing: border-box; }
+*{ box-sizing: border-box; }
 
 body{
   margin: 0;
@@ -58,7 +58,7 @@ header p{
 
 /* Legend */
 .legend{
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 16px auto 6px;
   display: flex;
   flex-wrap: wrap;
@@ -85,13 +85,13 @@ header p{
   border-radius: 4px;
 }
 
-/* Table section */
+/* Main */
 main{
   padding: 8px 16px 40px;
 }
 
 .table-wrap{
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -101,27 +101,20 @@ main{
   font-weight: 800;
 }
 
-/* Horizontal scroll when needed (mobile/tablet), no clipping */
-.table-scroll{
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 8px;
+/* Wrapper (no scrollbar) */
+.table-wrapper{
+  overflow: hidden;
+  padding: 10px 0;
 }
 
-/* Exact 18-column periodic grid */
+/* ✅ ONE grid definition (18 columns exact) */
 #periodic-table{
-  --gap: clamp(6px, 0.8vw, 12px);
-  --cell: clamp(52px, 4.2vw, 72px);
-
   display: grid;
-  grid-template-columns: repeat(18, var(--cell));
-  grid-auto-rows: var(--cell);
-  gap: var(--gap);
+  grid-template-columns: repeat(18, minmax(0, 1fr));
+  grid-auto-rows: clamp(56px, 5.2vw, 96px);
+  gap: clamp(6px, 0.8vw, 12px);
 
-  /* important: width fits the grid exactly */
-  width: max-content;
-
-  /* center on large screens */
+  width: 100%;
   margin: 0 auto;
   padding: 10px;
 }
@@ -131,26 +124,22 @@ main{
   visibility: hidden;
 }
 
-/* =========================================================
-   Element cards (FINAL CLEAN VERSION)
-   ========================================================= */
+/* Element cards */
 .element{
-  width: var(--cell);
-  height: var(--cell);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+
   border-radius: 14px;
-  padding: 8px;
-  box-sizing: border-box;
+  padding: clamp(6px, 0.7vw, 10px);
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+  justify-content: space-between;
 
-  position: relative;
   cursor: pointer;
   border: 2px solid rgba(255,255,255,0.12);
-
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
@@ -167,42 +156,32 @@ main{
   transform: translateY(-1px) scale(0.99);
 }
 
-/* Atomic number in corner */
 .element .no{
-  position: absolute;
-  top: 6px;
-  left: 8px;
-  font-size: 12px;
-  line-height: 1;
+  font-size: clamp(10px, 1vw, 12px);
   opacity: 0.9;
 }
 
-/* Symbol: centered, never touches border */
 .element .symbol{
-  font-size: 26px;
+  font-size: clamp(16px, 2.2vw, 30px);
   font-weight: 900;
   color: #fff;
   line-height: 1;
   text-shadow: 0 0 12px rgba(255,255,255,0.25);
+}
 
-  padding: 0 4px;          /* breathing space so no touching */
-  max-width: 100%;
+.element .name{
+  font-size: clamp(9px, 0.95vw, 12px);
+  opacity: 0.95;
+
   white-space: nowrap;
   overflow: hidden;
-
-  /* optical centering */
-  transform: translateY(1px);
+  text-overflow: ellipsis;
 }
 
-/* Only for 3-letter symbols like Uue */
+/* ✅ Fix for 3-letter symbols like Uue */
 .element.wide-symbol .symbol{
-  font-size: 18px;
-  letter-spacing: 0.2px;
-}
-
-/* Keep tiles clean: hide element names inside tiles */
-.element .name{
-  display: none;
+  font-size: clamp(12px, 1.8vw, 22px);
+  letter-spacing: 0.5px;
 }
 
 /* Modal */
@@ -280,48 +259,23 @@ main{
   color: #9ca3af;
 }
 
-@media (max-width: 600px) {
-  .element{
-    padding: 6px;
-    gap: 4px;
-  }
+/* ✅ Safe mobile readability (structure unchanged) */
+@media (max-width: 600px){
+  header h1{ font-size: 34px; }
 
-  .element .no{
-    font-size: 10px;
-    top: 5px;
-    left: 7px;
-  }
-
-  .element .symbol{
-    font-size: 22px;
-  }
-
-  .element.wide-symbol .symbol{
-    font-size: 16px;
-  }
-}
-
-/* Tablet polish (between mobile and desktop) */
-@media (min-width: 601px) and (max-width: 1024px) {
   #periodic-table{
-    --cell: 56px;
-    --gap: 8px;
+    grid-auto-rows: clamp(42px, 7.2vw, 60px);
+    gap: 6px;
+    padding: 6px;
   }
 
   .element{
-    padding: 6px;
     border-radius: 12px;
+    padding: 6px;
   }
 
-  .element .no{
-    font-size: 11px;
-  }
-
-  .element .symbol{
-    font-size: 22px;
-  }
-
-  .element.wide-symbol .symbol{
-    font-size: 17px;
+  /* Optional: hide names on very small screens to prevent crowding */
+  .element .name{
+    display: none;
   }
 }
