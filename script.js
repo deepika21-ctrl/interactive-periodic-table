@@ -147,32 +147,42 @@ function closeModal() {
 // DESKTOP: SCALE TABLE TO FIT SCREEN (NO SCROLLBARS)
 // --------------------
 function fitTableToDesktopScreen() {
-  const isDesktop = window.innerWidth >= 1201;
-
-  // reset on mobile/tablet
+  const isDesktop = window.matchMedia("(min-width: 1025px)").matches;
   if (!isDesktop) {
     table.style.transform = "";
     return;
   }
 
-  // if table isn't rendered yet
   if (!table || table.childElementCount === 0) return;
 
   const headerEl = document.querySelector("header");
+  const controlsEl = document.querySelector(".controls");
+  const legendEl = document.querySelector(".legend");
   const footerEl = document.querySelector("footer");
-  if (!headerEl || !footerEl) return;
 
-  // available space
-  const padding = 24; // safe breathing room
+  if (!headerEl || !controlsEl || !legendEl || !footerEl) return;
+
+  // Reset transform before measuring
+  table.style.transform = "";
+
+  // Measure available space (viewport minus UI sections)
+  const padding = 24; // safe breathing
   const availableWidth = window.innerWidth - padding;
-  const availableHeight =
-    window.innerHeight - headerEl.offsetHeight - footerEl.offsetHeight - 16;
 
+  const usedHeight =
+    headerEl.getBoundingClientRect().height +
+    controlsEl.getBoundingClientRect().height +
+    legendEl.getBoundingClientRect().height +
+    footerEl.getBoundingClientRect().height;
+
+  const availableHeight = window.innerHeight - usedHeight - 16; // extra safety
+
+  // Measure table natural size
   const tableWidth = table.scrollWidth;
   const tableHeight = table.scrollHeight;
+
   if (!tableWidth || !tableHeight) return;
 
-  // scale down only if needed
   const scale = Math.min(
     1,
     availableWidth / tableWidth,
@@ -180,6 +190,15 @@ function fitTableToDesktopScreen() {
   );
 
   table.style.transform = `scale(${scale})`;
+}
+
+let fitRaf = null;
+function scheduleFit() {
+  if (fitRaf) cancelAnimationFrame(fitRaf);
+  fitRaf = requestAnimationFrame(() => {
+    fitTableToDesktopScreen();
+    fitRaf = null;
+  });
 }
 
 // --------------------
@@ -214,17 +233,14 @@ function renderTable(list) {
       const card = document.createElement("div");
       card.className = "element";
 
-      // Fix for Uue / long symbols (3 letters)
-      if (String(el.symbol).length > 2) {
-        card.classList.add("wide-symbol");
-      }
+      // long symbols (3 letters) like Uue
+      if (String(el.symbol).length > 2) card.classList.add("wide-symbol");
 
       const color = categoryColors[el.category] || categoryColors["Unknown"];
       card.style.backgroundColor = color + "33";
       card.style.borderColor = color;
       card.style.setProperty("--glow", color);
 
-      // keep name in DOM if you ever want tooltip later (CSS hides it)
       card.innerHTML = `
         <div class="no">${el.number}</div>
         <div class="symbol">${el.symbol}</div>
@@ -257,7 +273,7 @@ function applyFilters() {
   });
 
   renderTable(filtered);
-  fitTableToDesktopScreen();
+  scheduleFit();
 }
 
 // --------------------
@@ -279,9 +295,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeModal();
 });
 
-window.addEventListener("resize", () => {
-  fitTableToDesktopScreen();
-});
+window.addEventListener("resize", scheduleFit);
 
 // --------------------
 // INIT
@@ -293,6 +307,9 @@ window.addEventListener("resize", () => {
     await loadElements();
     populateCategoryDropdown();
     applyFilters();
+
+    // Fit once after first paint
+    setTimeout(scheduleFit, 0);
   } catch (err) {
     table.innerHTML = `<div style="padding:12px; color:#fca5a5;">
       Error loading elements dataset. Make sure <b>elements.json</b> is in the repo root.
