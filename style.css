@@ -247,3 +247,15 @@ main{
   font-size: 13px;
   color: #9ca3af;
 }
+/* Mobile handling for periodic table */
+@media (max-width: 768px) {
+  .table-wrapper {
+    overflow-x: auto;
+    padding-bottom: 12px;
+  }
+
+  #periodic-table {
+    min-width: 1200px; /* preserves layout */
+  }
+}
+
