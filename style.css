@@ -280,5 +280,32 @@ main{
     display: none;
   }
 }
+/* Tablet polish (between mobile and desktop) */
+@media (min-width: 601px) and (max-width: 1024px) {
+  #periodic-table{
+    --cell: 56px;     /* slightly smaller than desktop */
+    --gap: 8px;
+  }
+
+  .element{
+    padding: 6px;
+    border-radius: 12px;
+  }
+
+  .element .no{
+    font-size: 11px;
+  }
+
+  .element .symbol{
+    font-size: 22px;
+  }
+
+  .element .name{
+    font-size: 11px;
+    display: block;
+  }
+}
+
+
 
 
