@@ -1,5 +1,5 @@
 // --------------------
-// CATEGORY COLORS (full table)
+// CATEGORY COLORS (for legend + tile styling)
 // --------------------
 const categoryColors = {
   "Non-metal": "#38bdf8",
@@ -14,30 +14,6 @@ const categoryColors = {
   "Actinide": "#fca5a5",
   "Unknown": "#94a3b8"
 };
-
-function normalizeCategory(raw) {
-  if (!raw) return "Unknown";
-  const s = String(raw).toLowerCase();
-
-  if (s.includes("noble")) return "Noble Gas";
-  if (s.includes("alkali metal")) return "Alkali Metal";
-  if (s.includes("alkaline earth")) return "Alkaline Earth Metal";
-  if (s.includes("halogen")) return "Halogen";
-  if (s.includes("metalloid")) return "Metalloid";
-  if (s.includes("lanthanide")) return "Lanthanide";
-  if (s.includes("actinide")) return "Actinide";
-  if (s.includes("post-transition")) return "Post-transition Metal";
-  if (s.includes("transition")) return "Transition Metal";
-
-  // nonmetals in this dataset come as diatomic/polyatomic
-  if (s.includes("nonmetal")) return "Non-metal";
-
-  return "Unknown";
-}
-
-function getColorForCategory(cat) {
-  return categoryColors[cat] || categoryColors["Unknown"];
-}
 
 // --------------------
 // DOM
@@ -61,6 +37,40 @@ const closeModalBtn = document.getElementById("closeModal");
 let elements = [];
 
 // --------------------
+// HELPERS
+// --------------------
+function normalizeCategory(rawCat) {
+  if (!rawCat) return "Unknown";
+  const c = String(rawCat).toLowerCase().trim();
+
+  // Map the dataset categories into your simplified legend categories
+  if (c.includes("noble gas")) return "Noble Gas";
+  if (c.includes("alkali metal") && !c.includes("alkaline")) return "Alkali Metal";
+  if (c.includes("alkaline earth metal")) return "Alkaline Earth Metal";
+  if (c.includes("metalloid")) return "Metalloid";
+  if (c.includes("halogen")) return "Halogen";
+  if (c.includes("transition metal") && c.includes("post")) return "Post-transition Metal";
+  if (c.includes("post-transition metal")) return "Post-transition Metal";
+  if (c.includes("transition metal")) return "Transition Metal";
+  if (c.includes("lanthanide")) return "Lanthanide";
+  if (c.includes("actinide")) return "Actinide";
+
+  // The dataset uses terms like "diatomic nonmetal", "polyatomic nonmetal"
+  if (c.includes("nonmetal")) return "Non-metal";
+
+  // fallback
+  if (c.includes("unknown")) return "Unknown";
+  return "Unknown";
+}
+
+function formatMass(mass) {
+  if (mass === null || mass === undefined || mass === "") return "—";
+  const n = Number(mass);
+  if (Number.isNaN(n)) return String(mass);
+  return n.toFixed(3).replace(/\.?0+$/, "");
+}
+
+// --------------------
 // LEGEND
 // --------------------
 function renderLegend() {
@@ -77,12 +87,40 @@ function renderLegend() {
 }
 
 // --------------------
+// DATA LOADING
+// --------------------
+async function loadElements() {
+  const res = await fetch("elements.json");
+  if (!res.ok) throw new Error("Failed to fetch elements.json");
+
+  const data = await res.json();
+  const list = Array.isArray(data.elements) ? data.elements : [];
+
+  // normalize into the fields our UI expects
+  elements = list.map(el => ({
+    number: el.number,
+    symbol: el.symbol,
+    name: el.name,
+    category: normalizeCategory(el.category),
+    atomic_mass: el.atomic_mass,
+    phase: el.phase || "—",
+    group: el.group || "—",
+    period: el.period || "—",
+    xpos: el.xpos, // group position (1..18)
+    ypos: el.ypos  // period position (1..7 + f-block rows)
+  }));
+}
+
+// --------------------
 // DROPDOWN
 // --------------------
 function populateCategoryDropdown() {
-  // Keep "All Categories" already in HTML
-  const cats = [...new Set(elements.map(e => e.category))].sort();
-  cats.forEach(cat => {
+  // keep "all" at top; then categories in the legend order
+  categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+
+  const used = new Set(elements.map(e => e.category));
+  Object.keys(categoryColors).forEach(cat => {
+    if (!used.has(cat)) return;
     const option = document.createElement("option");
     option.value = cat;
     option.textContent = cat;
@@ -95,16 +133,14 @@ function populateCategoryDropdown() {
 // --------------------
 function openModal(el) {
   modalTitle.textContent = `${el.name} (${el.symbol})`;
-
   modalBody.innerHTML = `
-    <div class="kv"><div class="k">Atomic Number</div><div class="v">${el.atomicNumber}</div></div>
-    <div class="kv"><div class="k">Atomic Mass</div><div class="v">${el.atomicMass ?? "—"}</div></div>
+    <div class="kv"><div class="k">Atomic Number</div><div class="v">${el.number}</div></div>
+    <div class="kv"><div class="k">Atomic Mass</div><div class="v">${formatMass(el.atomic_mass)}</div></div>
     <div class="kv"><div class="k">Category</div><div class="v">${el.category}</div></div>
-    <div class="kv"><div class="k">Phase</div><div class="v">${el.phase ?? "—"}</div></div>
-    <div class="kv"><div class="k">Group</div><div class="v">${el.group ?? "—"}</div></div>
-    <div class="kv"><div class="k">Period</div><div class="v">${el.period ?? "—"}</div></div>
+    <div class="kv"><div class="k">Phase</div><div class="v">${el.phase}</div></div>
+    <div class="kv"><div class="k">Group</div><div class="v">${el.group}</div></div>
+    <div class="kv"><div class="k">Period</div><div class="v">${el.period}</div></div>
   `;
-
   modalBackdrop.classList.remove("hidden");
   elementModal.classList.remove("hidden");
 }
@@ -115,7 +151,7 @@ function closeModal() {
 }
 
 // --------------------
-// RENDER (EXACT 18x9 GRID)
+// RENDER (exact periodic layout using xpos/ypos)
 // --------------------
 function renderTable(list) {
   table.innerHTML = "";
@@ -126,15 +162,14 @@ function renderTable(list) {
   }
 
   const cols = 18;
-  const maxPeriod = Math.max(...list.map(e => e.period));
+  const maxY = Math.max(...list.map(e => e.ypos));
 
-  // Map by (period, group)
   const posMap = new Map();
-  list.forEach(el => posMap.set(`${el.period}-${el.group}`, el));
+  list.forEach(el => posMap.set(`${el.ypos}-${el.xpos}`, el));
 
-  for (let p = 1; p <= maxPeriod; p++) {
-    for (let g = 1; g <= cols; g++) {
-      const key = `${p}-${g}`;
+  for (let y = 1; y <= maxY; y++) {
+    for (let x = 1; x <= cols; x++) {
+      const key = `${y}-${x}`;
       const el = posMap.get(key);
 
       if (!el) {
@@ -146,18 +181,19 @@ function renderTable(list) {
 
       const card = document.createElement("div");
       card.className = "element";
-      
-      if (el.symbol.length > 2) {
-  card.classList.add("wide-symbol");
-}
 
-      const color = getColorForCategory(el.category);
+      // ✅ Fix for Uue / long symbols (3 letters)
+      if (String(el.symbol).length > 2) {
+        card.classList.add("wide-symbol");
+      }
+
+      const color = categoryColors[el.category] || categoryColors["Unknown"];
       card.style.backgroundColor = color + "33";
       card.style.borderColor = color;
       card.style.setProperty("--glow", color);
 
       card.innerHTML = `
-        <div class="no">${el.atomicNumber}</div>
+        <div class="no">${el.number}</div>
         <div class="symbol">${el.symbol}</div>
         <div class="name">${el.name}</div>
       `;
@@ -182,7 +218,7 @@ function applyFilters() {
       q === "" ||
       el.name.toLowerCase().includes(q) ||
       el.symbol.toLowerCase().includes(q) ||
-      String(el.atomicNumber) === q;
+      String(el.number) === q;
 
     return matchCategory && matchSearch;
   });
@@ -210,31 +246,19 @@ document.addEventListener("keydown", (e) => {
 });
 
 // --------------------
-// LOAD DATA + INIT
+// INIT
 // --------------------
-async function loadElements() {
-  const res = await fetch("./elements.json");
-  const data = await res.json();
-
-  // Your JSON has { "elements": [...] }
-  elements = data.elements.map(el => ({
-    atomicNumber: el.number,
-    symbol: el.symbol,
-    name: el.name,
-    atomicMass: el.atomic_mass,
-    category: normalizeCategory(el.category),
-    phase: el.phase,
-    group: el.xpos,
-    period: el.ypos
-  }));
-
+(async function init() {
   renderLegend();
-  populateCategoryDropdown();
-  applyFilters();
-}
 
-loadElements().catch(err => {
-  console.error("Failed to load elements.json:", err);
-  table.innerHTML = `<div style="padding:12px; color:#cbd5f5;">Error loading data. Check console.</div>`;
-});
-
+  try {
+    await loadElements();
+    populateCategoryDropdown();
+    applyFilters();
+  } catch (err) {
+    table.innerHTML = `<div style="padding:12px; color:#fca5a5;">
+      Error loading elements dataset. Make sure <b>elements.json</b> is in the repo root.
+    </div>`;
+    console.error(err);
+  }
+})();
