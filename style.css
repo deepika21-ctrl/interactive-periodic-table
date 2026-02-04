@@ -1,7 +1,11 @@
 *{ box-sizing: border-box; }
 
-body{
+html, body{
   margin: 0;
+  padding: 0;
+}
+
+body{
   font-family: Arial, sans-serif;
   background: #000;
   color: #e5e7eb;
@@ -103,9 +107,9 @@ main{
   font-weight: 800;
 }
 
-/* wrapper in your HTML is .table-scroll */
+/* wrapper */
 .table-scroll{
-  overflow-x: auto; /* mobile/tablet */
+  overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 10px;
@@ -125,7 +129,7 @@ main{
   margin: 0 auto;
   padding: 10px;
 
-  transform-origin: top center; /* important for scaling on desktop */
+  transform-origin: top center; /* scaling anchor */
 }
 
 .empty-cell{
@@ -273,19 +277,21 @@ main{
   .element.wide-symbol .symbol{ font-size: 14px; }
 }
 
-/* ================= DESKTOP: ONE SCREEN, NO SCROLLBARS ================= */
-@media (min-width: 1201px){
+/* =========================================================
+   DESKTOP: ONE SCREEN (NO H/V SCROLL) + TABLE AUTO-FIT
+   ========================================================= */
+@media (min-width: 1025px){
   html, body{
     height: 100%;
-    overflow: hidden; /* no scrollbars */
+    overflow: hidden; /* remove vertical + horizontal scrollbars */
   }
 
   body{
-    display: flex;
-    flex-direction: column;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto; /* header, controls, legend, table, footer */
   }
 
-  /* reduce top space slightly */
   header{
     padding: 14px 16px 6px;
   }
@@ -298,22 +304,32 @@ main{
     margin: 0 0 10px;
   }
 
-  /* remove the extra big heading inside main to save height */
+  .legend{
+    margin: 10px auto 6px;
+  }
+
+  /* remove extra inner heading to save height */
   .table-wrap h2{
     display: none;
   }
 
   main{
-    flex: 1;
-    padding: 0 16px 8px;
+    padding: 0 16px 0;
+    min-height: 0; /* IMPORTANT: allows the 1fr row to shrink properly */
+  }
+
+  .table-scroll{
+    height: 100%;
+    overflow: hidden; /* no scrollbars on desktop */
+    padding-bottom: 0;
     display: flex;
     justify-content: center;
     align-items: flex-start;
   }
 
-  .table-scroll{
-    overflow: hidden; /* no horizontal scroll on desktop */
-    padding-bottom: 0;
+  #periodic-table{
+    margin: 0 auto;
+    padding: 6px;
   }
 
   .footer{
