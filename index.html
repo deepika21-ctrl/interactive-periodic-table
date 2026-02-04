@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Interactive Periodic Table</title>
   <meta charset="UTF-8" />
-  <title>Interactive Periodic Table</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Periodic Table</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -27,10 +26,11 @@
   <main>
     <section class="table-wrap">
       <h2>Periodic Table</h2>
-     <div class="table-wrapper">
-  <div id="periodic-table"></div>
-</div>
 
+      <!-- IMPORTANT: this wrapper enables horizontal scroll when needed -->
+      <div class="table-scroll">
+        <div id="periodic-table" aria-label="Periodic Table Grid"></div>
+      </div>
     </section>
   </main>
 
@@ -40,16 +40,15 @@
   <div id="elementModal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-header">
       <h3 id="modalTitle">Element</h3>
-      <button id="closeModal" class="close-btn">✕</button>
+      <button id="closeModal" class="close-btn" type="button">✕</button>
     </div>
     <div id="modalBody" class="modal-body"></div>
   </div>
 
-  <script src="script.js"></script>
   <footer class="footer">
-  <p>Built with HTML, CSS & JavaScript</p>
-</footer>
+    <p>Built with HTML, CSS & JavaScript</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
-
