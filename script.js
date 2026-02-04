@@ -146,6 +146,10 @@ function renderTable(list) {
 
       const card = document.createElement("div");
       card.className = "element";
+      
+      if (el.symbol.length > 2) {
+  card.classList.add("wide-symbol");
+}
 
       const color = getColorForCategory(el.category);
       card.style.backgroundColor = color + "33";
@@ -233,3 +237,4 @@ loadElements().catch(err => {
   console.error("Failed to load elements.json:", err);
   table.innerHTML = `<div style="padding:12px; color:#cbd5f5;">Error loading data. Check console.</div>`;
 });
+
