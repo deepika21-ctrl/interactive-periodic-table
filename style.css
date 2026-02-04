@@ -131,16 +131,15 @@ main{
   visibility: hidden;
 }
 
-/* =========================================================
-   Element cards (UPDATED)
-   1) perfect centering + safe padding
-   ========================================================= */
+/* Element cards */
 .element{
   width: var(--cell);
   height: var(--cell);
   box-sizing: border-box;
   border-radius: 14px;
-  padding: 8px;
+
+  /* UPDATED: more inner safety so text never touches border */
+  padding: 10px;
 
   /* perfect centering */
   display: flex;
@@ -171,7 +170,7 @@ main{
   transform: translateY(-1px) scale(0.99);
 }
 
-/* atomic number (UPDATED: absolute positioning) */
+/* atomic number */
 .element .no{
   position: absolute;
   top: 6px;
@@ -181,32 +180,31 @@ main{
   opacity: 0.9;
 }
 
-/* =========================================================
-   2) 3-letter symbols fit without shrinking everything
-   ========================================================= */
+/* Symbol (UPDATED: width cap + centered + optical centering) */
 .element .symbol{
   font-weight: 900;
   color: #fff;
   line-height: 1;
   text-shadow: 0 0 12px rgba(255,255,255,0.25);
 
-  /* keep it centered + prevent touching boundaries */
-  max-width: 100%;
+  /* UPDATED: prevents touching border even for wide symbols */
+  max-width: 80%;
+  margin: 0 auto;
   padding: 0 2px;
+
   white-space: nowrap;
   overflow: hidden;
 
-  /* base size for 1–2 letter symbols */
   font-size: 26px;
 
-  /* 3) optical centering if it feels low/high */
+  /* UPDATED: optical centering */
   transform: translateY(1px);
 }
 
-/* For 3-letter symbols like Uue (keep others unchanged) */
+/* UPDATED: 3-letter symbols like Uue */
 .element.wide-symbol .symbol{
-  font-size: 20px;
-  letter-spacing: 0.4px;
+  font-size: 18px;
+  letter-spacing: 0.3px;
 }
 
 .element .name{
@@ -297,7 +295,7 @@ main{
 
 @media (max-width: 600px) {
   .element{
-    padding: 6px;
+    padding: 8px; /* keep some safety on small screens */
     gap: 4px;
   }
 
@@ -309,6 +307,11 @@ main{
 
   .element .symbol{
     line-height: 1;
+    max-width: 82%;
+  }
+
+  .element.wide-symbol .symbol{
+    font-size: 16px;
   }
 
   .element .name{
@@ -324,7 +327,7 @@ main{
   }
 
   .element{
-    padding: 6px;
+    padding: 8px;
     border-radius: 12px;
   }
 
@@ -334,10 +337,11 @@ main{
 
   .element .symbol{
     font-size: 22px;
+    max-width: 82%;
   }
 
   .element.wide-symbol .symbol{
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .element .name{
