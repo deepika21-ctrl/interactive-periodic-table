@@ -256,3 +256,10 @@ main{
   font-size: 13px;
   color: #9ca3af;
 }
+/* Fix for 3-letter symbols like Uue */
+.element.wide-symbol .symbol{
+  font-size: 20px;
+  letter-spacing: 0.4px;
+}
+
+
