@@ -7,6 +7,7 @@ body{
   color: #e5e7eb;
 }
 
+/* ================= HEADER ================= */
 header{
   text-align: center;
   padding: 22px 16px 10px;
@@ -23,7 +24,7 @@ header p{
   color: #cbd5f5;
 }
 
-/* Controls */
+/* ================= CONTROLS ================= */
 .controls{
   max-width: 900px;
   margin: 0 auto;
@@ -35,7 +36,7 @@ header p{
 
 .controls input,
 .controls select{
-  padding: 12px 12px;
+  padding: 12px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.18);
   background: rgba(255,255,255,0.06);
@@ -57,7 +58,7 @@ header p{
   background: rgba(255,255,255,0.16);
 }
 
-/* Legend */
+/* ================= LEGEND ================= */
 .legend{
   max-width: 1000px;
   margin: 16px auto 6px;
@@ -65,7 +66,6 @@ header p{
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
-  padding: 0 16px;
 }
 
 .legend-item{
@@ -77,7 +77,6 @@ header p{
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.18);
   font-size: 13px;
-  color: #e5e7eb;
 }
 
 .legend-color{
@@ -86,7 +85,7 @@ header p{
   border-radius: 4px;
 }
 
-/* Table container */
+/* ================= TABLE ================= */
 main{
   padding: 8px 16px 40px;
 }
@@ -102,13 +101,12 @@ main{
   font-weight: 800;
 }
 
-/* This wrapper is what we scroll on small screens */
-.table-wrapper{
-  width: 100%;
-  overflow-x: hidden; /* desktop default */
+.table-scroll{
+  overflow-x: auto;
+  padding-bottom: 10px;
 }
 
-/* ✅ ONE single grid system (no duplicates) */
+/* Periodic grid */
 #periodic-table{
   --cell: 72px;
   --gap: 12px;
@@ -118,34 +116,30 @@ main{
   grid-auto-rows: var(--cell);
   gap: var(--gap);
 
-  justify-content: center;
-  align-content: start;
-
+  width: max-content;
+  margin: 0 auto;
   padding: 10px;
 }
 
-/* Empty cells keep spacing */
 .empty-cell{
   visibility: hidden;
 }
 
-/* ✅ CLEAN ELEMENT TILE (no leaking text) */
+/* ================= ELEMENT TILE ================= */
 .element{
   width: var(--cell);
   height: var(--cell);
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  display: grid;
+  place-items: center;        /* 🔑 perfect centering */
 
   border-radius: 14px;
   padding: 6px;
+  position: relative;
 
   border: 2px solid rgba(255,255,255,0.12);
   cursor: pointer;
 
-  overflow: hidden; /* ✅ prevents messy text outside */
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
@@ -155,84 +149,65 @@ main{
   box-shadow:
     0 0 0 2px rgba(255,255,255,0.08),
     0 14px 30px rgba(0,0,0,0.35),
-    0 0 22px var(--glow, rgba(255,255,255,0.15));
+    0 0 22px var(--glow);
 }
 
-.element:active{
-  transform: translateY(-1px) scale(0.99);
-}
-
-/* Text inside tiles */
+/* atomic number */
 .element .no{
+  position: absolute;
+  top: 6px;
+  left: 8px;
   font-size: 11px;
   opacity: 0.85;
-  align-self: flex-start;
+  line-height: 1;
 }
 
+/* symbol */
 .element .symbol{
   font-size: 26px;
   font-weight: 900;
   line-height: 1;
   color: #fff;
   text-shadow: 0 0 12px rgba(255,255,255,0.25);
+  transform: translateY(1px); /* optical centering */
 }
 
-.element .name{
-  font-size: 11px;
-  opacity: 0.85;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-/* ✅ Fix for 3-letter symbols (Uue etc.) */
+/* 3-letter symbols like Uue */
 .element.wide-symbol .symbol{
-  font-size: 20px;
-  letter-spacing: -0.5px;
+  font-size: 18px;
 }
 
-/* Modal */
+/* HARD remove names from tiles */
+.element .name{
+  display: none !important;
+}
+
+/* ================= MODAL ================= */
 .backdrop{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.62);
 }
 
-.hidden{
-  display: none;
-}
+.hidden{ display: none; }
 
 .modal{
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
   width: min(520px, 92vw);
   background: #020617;
-  border: 1px solid rgba(255,255,255,0.16);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+  border: 1px solid rgba(255,255,255,0.16);
 }
 
 .modal-header{
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
   border-bottom: 1px solid rgba(255,255,255,0.12);
   padding-bottom: 10px;
-}
-
-.close-btn{
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.16);
-  color: #e5e7eb;
-  border-radius: 10px;
-  padding: 8px 10px;
-  cursor: pointer;
 }
 
 .modal-body{
@@ -244,22 +219,14 @@ main{
 
 .kv{
   background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
   padding: 10px;
 }
 
-.k{
-  font-size: 12px;
-  opacity: 0.85;
-}
+.k{ font-size: 12px; opacity: 0.8; }
+.v{ font-size: 16px; font-weight: 800; }
 
-.v{
-  margin-top: 6px;
-  font-size: 16px;
-  font-weight: 800;
-}
-
+/* ================= FOOTER ================= */
 .footer{
   text-align: center;
   padding: 18px;
@@ -267,29 +234,21 @@ main{
   color: #9ca3af;
 }
 
-/* ✅ Tablet */
+/* ================= RESPONSIVE ================= */
 @media (max-width: 1100px){
   #periodic-table{
     --cell: 58px;
     --gap: 10px;
   }
+  .element .symbol{ font-size: 22px; }
+  .element.wide-symbol .symbol{ font-size: 16px; }
 }
 
-/* ✅ Mobile: keep exact structure → allow horizontal scroll instead of breaking layout */
 @media (max-width: 700px){
-  .table-wrapper{
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 10px;
-  }
-
   #periodic-table{
     --cell: 46px;
     --gap: 8px;
-    width: max-content; /* important: stops squishing and keeps perfect grid */
   }
-
   .element .symbol{ font-size: 18px; }
-  .element.wide-symbol .symbol{ font-size: 15px; }
-  .element .name{ font-size: 9px; }
+  .element.wide-symbol .symbol{ font-size: 14px; }
 }
