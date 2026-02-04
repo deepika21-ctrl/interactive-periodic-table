@@ -1,6 +1,3 @@
-// --------------------
-// CATEGORY COLORS (for legend + tile styling)
-// --------------------
 const categoryColors = {
   "Non-metal": "#38bdf8",
   "Noble Gas": "#c084fc",
@@ -15,9 +12,6 @@ const categoryColors = {
   "Unknown": "#94a3b8"
 };
 
-// --------------------
-// DOM
-// --------------------
 const table = document.getElementById("periodic-table");
 const legendContainer = document.getElementById("legend");
 
@@ -31,199 +25,115 @@ const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
 const closeModalBtn = document.getElementById("closeModal");
 
-// --------------------
-// STATE
-// --------------------
 let elements = [];
 
-// --------------------
-// HELPERS
-// --------------------
-function normalizeCategory(rawCat) {
-  if (!rawCat) return "Unknown";
+/* ---------- HELPERS ---------- */
+function normalizeCategory(rawCat){
+  if(!rawCat) return "Unknown";
   const c = String(rawCat).toLowerCase().trim();
 
-  if (c.includes("noble gas")) return "Noble Gas";
-  if (c.includes("alkali metal") && !c.includes("alkaline")) return "Alkali Metal";
-  if (c.includes("alkaline earth metal")) return "Alkaline Earth Metal";
-  if (c.includes("metalloid")) return "Metalloid";
-  if (c.includes("halogen")) return "Halogen";
-  if (c.includes("transition metal") && c.includes("post")) return "Post-transition Metal";
-  if (c.includes("post-transition metal")) return "Post-transition Metal";
-  if (c.includes("transition metal")) return "Transition Metal";
-  if (c.includes("lanthanide")) return "Lanthanide";
-  if (c.includes("actinide")) return "Actinide";
-  if (c.includes("nonmetal")) return "Non-metal";
-  if (c.includes("unknown")) return "Unknown";
+  if(c.includes("noble gas")) return "Noble Gas";
+  if(c.includes("alkali metal") && !c.includes("alkaline")) return "Alkali Metal";
+  if(c.includes("alkaline earth metal")) return "Alkaline Earth Metal";
+  if(c.includes("metalloid")) return "Metalloid";
+  if(c.includes("halogen")) return "Halogen";
+  if(c.includes("post-transition metal")) return "Post-transition Metal";
+  if(c.includes("transition metal") && !c.includes("post")) return "Transition Metal";
+  if(c.includes("lanthanide")) return "Lanthanide";
+  if(c.includes("actinide")) return "Actinide";
+  if(c.includes("nonmetal")) return "Non-metal";
   return "Unknown";
 }
 
-function formatMass(mass) {
-  if (mass === null || mass === undefined || mass === "") return "—";
+function formatMass(mass){
+  if(mass === null || mass === undefined || mass === "") return "—";
   const n = Number(mass);
-  if (Number.isNaN(n)) return String(mass);
+  if(Number.isNaN(n)) return String(mass);
   return n.toFixed(3).replace(/\.?0+$/, "");
 }
 
-// --------------------
-// LEGEND
-// --------------------
-function renderLegend() {
+/* ---------- LEGEND ---------- */
+function renderLegend(){
   legendContainer.innerHTML = "";
-  Object.entries(categoryColors).forEach(([category, color]) => {
+  Object.entries(categoryColors).forEach(([cat,color])=>{
     const item = document.createElement("div");
     item.className = "legend-item";
-    item.innerHTML = `
-      <span class="legend-color" style="background:${color}"></span>
-      <span>${category}</span>
-    `;
+    item.innerHTML = `<span class="legend-color" style="background:${color}"></span>${cat}`;
     legendContainer.appendChild(item);
   });
 }
 
-// --------------------
-// DATA LOADING
-// --------------------
-async function loadElements() {
-  const res = await fetch("elements.json");
-  if (!res.ok) throw new Error("Failed to fetch elements.json");
-
-  const data = await res.json();
-  const list = Array.isArray(data.elements) ? data.elements : [];
-
-  elements = list.map(el => ({
-    number: el.number,
-    symbol: el.symbol,
-    name: el.name,
-    category: normalizeCategory(el.category),
-    atomic_mass: el.atomic_mass,
-    phase: el.phase || "—",
-    group: el.group || "—",
-    period: el.period || "—",
-    xpos: el.xpos,
-    ypos: el.ypos
-  }));
-}
-
-// --------------------
-// DROPDOWN
-// --------------------
-function populateCategoryDropdown() {
-  categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
-
-  const used = new Set(elements.map(e => e.category));
-  Object.keys(categoryColors).forEach(cat => {
-    if (!used.has(cat)) return;
-    const option = document.createElement("option");
-    option.value = cat;
-    option.textContent = cat;
-    categoryFilter.appendChild(option);
-  });
-}
-
-// --------------------
-// MODAL
-// --------------------
-function openModal(el) {
+/* ---------- MODAL ---------- */
+function openModal(el){
   modalTitle.textContent = `${el.name} (${el.symbol})`;
   modalBody.innerHTML = `
     <div class="kv"><div class="k">Atomic Number</div><div class="v">${el.number}</div></div>
     <div class="kv"><div class="k">Atomic Mass</div><div class="v">${formatMass(el.atomic_mass)}</div></div>
     <div class="kv"><div class="k">Category</div><div class="v">${el.category}</div></div>
-    <div class="kv"><div class="k">Phase</div><div class="v">${el.phase}</div></div>
-    <div class="kv"><div class="k">Group</div><div class="v">${el.group}</div></div>
-    <div class="kv"><div class="k">Period</div><div class="v">${el.period}</div></div>
+    <div class="kv"><div class="k">Phase</div><div class="v">${el.phase ?? "—"}</div></div>
   `;
   modalBackdrop.classList.remove("hidden");
   elementModal.classList.remove("hidden");
 }
 
-function closeModal() {
+function closeModal(){
   modalBackdrop.classList.add("hidden");
   elementModal.classList.add("hidden");
 }
 
-// --------------------
-// DESKTOP: SCALE TABLE TO FIT SCREEN (NO SCROLLBARS)
-// --------------------
-function fitTableToDesktopScreen() {
+/* ---------- DESKTOP FIT (reliable) ---------- */
+/* Scales table based on actual container size (not header math) */
+function fitTableToDesktopScreen(){
   const isDesktop = window.matchMedia("(min-width: 1025px)").matches;
-  if (!isDesktop) {
+  const container = document.querySelector(".table-scroll");
+  if(!container || !table) return;
+
+  if(!isDesktop){
     table.style.transform = "";
     return;
   }
 
-  if (!table || table.childElementCount === 0) return;
-
-  const headerEl = document.querySelector("header");
-  const controlsEl = document.querySelector(".controls");
-  const legendEl = document.querySelector(".legend");
-  const footerEl = document.querySelector("footer");
-
-  if (!headerEl || !controlsEl || !legendEl || !footerEl) return;
-
-  // Reset transform before measuring
+  // reset before measuring
   table.style.transform = "";
 
-  // Measure available space (viewport minus UI sections)
-  const padding = 24; // safe breathing
-  const availableWidth = window.innerWidth - padding;
+  // container available space
+  const cw = container.clientWidth;
+  const ch = container.clientHeight;
 
-  const usedHeight =
-    headerEl.getBoundingClientRect().height +
-    controlsEl.getBoundingClientRect().height +
-    legendEl.getBoundingClientRect().height +
-    footerEl.getBoundingClientRect().height;
+  // natural table size
+  const rect = table.getBoundingClientRect();
+  const tw = rect.width;
+  const th = rect.height;
 
-  const availableHeight = window.innerHeight - usedHeight - 16; // extra safety
+  if(!tw || !th || !cw || !ch) return;
 
-  // Measure table natural size
-  const tableWidth = table.scrollWidth;
-  const tableHeight = table.scrollHeight;
-
-  if (!tableWidth || !tableHeight) return;
-
-  const scale = Math.min(
-    1,
-    availableWidth / tableWidth,
-    availableHeight / tableHeight
-  );
+  // small safety padding so it never touches edges
+  const safety = 16;
+  const scale = Math.min(1, (cw - safety) / tw, (ch - safety) / th);
 
   table.style.transform = `scale(${scale})`;
 }
 
-let fitRaf = null;
-function scheduleFit() {
-  if (fitRaf) cancelAnimationFrame(fitRaf);
-  fitRaf = requestAnimationFrame(() => {
+let rafId = null;
+function scheduleFit(){
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(()=>{
     fitTableToDesktopScreen();
-    fitRaf = null;
+    rafId = null;
   });
 }
 
-// --------------------
-// RENDER (exact periodic layout using xpos/ypos)
-// --------------------
-function renderTable(list) {
+/* ---------- RENDER ---------- */
+function renderTable(list){
   table.innerHTML = "";
-
-  if (!list || list.length === 0) {
-    table.innerHTML = `<div style="padding:12px; color:#cbd5f5;">No elements match your search/filter.</div>`;
-    return;
-  }
-
-  const cols = 18;
-  const maxY = Math.max(...list.map(e => e.ypos));
-
   const posMap = new Map();
-  list.forEach(el => posMap.set(`${el.ypos}-${el.xpos}`, el));
+  list.forEach(e => posMap.set(`${e.ypos}-${e.xpos}`, e));
 
-  for (let y = 1; y <= maxY; y++) {
-    for (let x = 1; x <= cols; x++) {
-      const key = `${y}-${x}`;
-      const el = posMap.get(key);
-
-      if (!el) {
+  const maxY = Math.max(...list.map(e=>e.ypos));
+  for(let y=1;y<=maxY;y++){
+    for(let x=1;x<=18;x++){
+      const el = posMap.get(`${y}-${x}`);
+      if(!el){
         const empty = document.createElement("div");
         empty.className = "empty-cell";
         table.appendChild(empty);
@@ -233,11 +143,12 @@ function renderTable(list) {
       const card = document.createElement("div");
       card.className = "element";
 
-      // long symbols (3 letters) like Uue
-      if (String(el.symbol).length > 2) card.classList.add("wide-symbol");
+      if(String(el.symbol).length > 2){
+        card.classList.add("wide-symbol");
+      }
 
-      const color = categoryColors[el.category] || categoryColors["Unknown"];
-      card.style.backgroundColor = color + "33";
+      const color = categoryColors[el.category] || categoryColors.Unknown;
+      card.style.background = color + "33";
       card.style.borderColor = color;
       card.style.setProperty("--glow", color);
 
@@ -247,42 +158,58 @@ function renderTable(list) {
         <div class="name">${el.name}</div>
       `;
 
-      card.addEventListener("click", () => openModal(el));
+      card.onclick = () => openModal(el);
       table.appendChild(card);
     }
   }
-}
 
-// --------------------
-// FILTERS
-// --------------------
-function applyFilters() {
-  const q = searchInput.value.trim().toLowerCase();
-  const cat = categoryFilter.value;
-
-  const filtered = elements.filter(el => {
-    const matchCategory = (cat === "all") || (el.category === cat);
-
-    const matchSearch =
-      q === "" ||
-      el.name.toLowerCase().includes(q) ||
-      el.symbol.toLowerCase().includes(q) ||
-      String(el.number) === q;
-
-    return matchCategory && matchSearch;
-  });
-
-  renderTable(filtered);
   scheduleFit();
 }
 
-// --------------------
-// EVENTS
-// --------------------
+/* ---------- FILTERS ---------- */
+function applyFilters(){
+  const q = searchInput.value.toLowerCase().trim();
+  const cat = categoryFilter.value;
+
+  const filtered = elements.filter(el =>
+    (cat === "all" || el.category === cat) &&
+    (
+      q === "" ||
+      el.name.toLowerCase().includes(q) ||
+      el.symbol.toLowerCase().includes(q) ||
+      String(el.number) === q
+    )
+  );
+
+  renderTable(filtered);
+}
+
+/* ---------- INIT ---------- */
+(async function(){
+  renderLegend();
+
+  const res = await fetch("elements.json");
+  const data = await res.json();
+
+  elements = data.elements.map(e=>({
+    ...e,
+    category: normalizeCategory(e.category)
+  }));
+
+  categoryFilter.innerHTML =
+    `<option value="all">All Categories</option>` +
+    [...new Set(elements.map(e=>e.category))]
+      .map(c=>`<option value="${c}">${c}</option>`).join("");
+
+  applyFilters();
+
+  // Fit after first paint
+  setTimeout(scheduleFit, 0);
+})();
+
 searchInput.addEventListener("input", applyFilters);
 categoryFilter.addEventListener("change", applyFilters);
-
-resetBtn.addEventListener("click", () => {
+resetBtn.addEventListener("click", ()=>{
   searchInput.value = "";
   categoryFilter.value = "all";
   applyFilters();
@@ -290,30 +217,6 @@ resetBtn.addEventListener("click", () => {
 
 closeModalBtn.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", closeModal);
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeModal();
-});
+document.addEventListener("keydown", (e)=> e.key === "Escape" && closeModal());
 
 window.addEventListener("resize", scheduleFit);
-
-// --------------------
-// INIT
-// --------------------
-(async function init() {
-  renderLegend();
-
-  try {
-    await loadElements();
-    populateCategoryDropdown();
-    applyFilters();
-
-    // Fit once after first paint
-    setTimeout(scheduleFit, 0);
-  } catch (err) {
-    table.innerHTML = `<div style="padding:12px; color:#fca5a5;">
-      Error loading elements dataset. Make sure <b>elements.json</b> is in the repo root.
-    </div>`;
-    console.error(err);
-  }
-})();
