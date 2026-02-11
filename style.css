@@ -94,7 +94,7 @@ header p{
 
 /* ================= MAIN ================= */
 main{
-  padding: 8px 16px 120px; /* space so footer doesn't overlap content */
+  padding: 8px 16px 110px; /* space for fixed footer */
 }
 
 .table-wrap{
@@ -108,15 +108,14 @@ main{
   font-weight: 800;
 }
 
-/* Scroll wrapper (mobile/tablet can scroll horizontally) */
+/* Mobile/tablet can scroll horizontally */
 .table-scroll{
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 
-  /* Center the table */
   display: flex;
-  justify-content: center;
+  justify-content: center; /* center table when it fits */
 }
 
 /* ================= PERIODIC TABLE GRID ================= */
@@ -129,8 +128,8 @@ main{
   grid-auto-rows: var(--cell);
   gap: var(--gap);
 
-  width: max-content;     /* grid keeps exact size */
-  margin: 0 auto;         /* centered */
+  width: max-content;
+  margin: 0 auto;
   padding: 10px;
 }
 
@@ -183,16 +182,16 @@ main{
   transform: translateY(1px);
 }
 
+/* 3-letter symbols like Uue */
 .element.wide-symbol .symbol{
   font-size: 18px;
 }
 
-/* keep name in DOM if you want later (tooltip), hide in tile */
 .element .name{
   display: none;
 }
 
-/* ================= MODAL (RESTORED) ================= */
+/* ================= MODAL ================= */
 .hidden{
   display: none;
 }
@@ -209,8 +208,8 @@ main{
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: min(520px, 92vw);
 
+  width: min(520px, 92vw);
   background: #020617;
   border: 1px solid rgba(255,255,255,0.16);
   border-radius: 16px;
@@ -268,8 +267,8 @@ main{
   left: 0;
   right: 0;
   bottom: 0;
-  text-align: center;
 
+  text-align: center;
   padding: 12px;
   font-size: 13px;
   color: #9ca3af;
@@ -298,7 +297,7 @@ main{
     overflow-y: auto;
   }
 
-  /* stop horizontal scrolling on desktop */
+  /* no horizontal scrolling on desktop */
   .table-scroll{
     overflow-x: hidden;
   }
