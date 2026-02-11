@@ -108,20 +108,27 @@ main{
   justify-content: center;
 }
 
-.table-scroll {
+.table-scroll{
   width: 100%;
-  overflow-x: auto;
+  overflow-x: auto;              /* allow horizontal scroll only if needed */
+  overflow-y: hidden;
   display: flex;
-  justify-content: center;
+  justify-content: center;       /* centers the grid */
+  padding: 0 16px;               /* prevents cutting on left/right edges */
 }
 
-#periodic-table {
+#periodic-table{
+  --gap: clamp(6px, 0.8vw, 12px);
+  --cell: clamp(52px, 4.2vw, 72px);
+
   display: grid;
-  grid-template-columns: repeat(18, minmax(60px, 1fr));
-  gap: 10px;
-  padding: 20px;
-  margin: 0 auto;
-  max-width: 1400px;
+  grid-template-columns: repeat(18, var(--cell));
+  grid-auto-rows: var(--cell);
+  gap: var(--gap);
+
+  width: max-content;   /* important */
+  margin: 0 auto;       /* important */
+  padding: 10px;
 }
 
 
@@ -294,4 +301,5 @@ main{
     overflow-x: hidden;
   }
 }
+
 
