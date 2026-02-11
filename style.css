@@ -102,36 +102,28 @@ main{
   margin: 0 auto;
 }
 
-.table-wrap h2{
-  margin: 14px 0 10px;
-  font-size: 34px;
-  font-weight: 800;
-}
-
-/* Mobile/tablet can scroll horizontally */
-.table-scroll{
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-
+.table-wrap {
+  width: 100%;
   display: flex;
-  justify-content: center; /* center table when it fits */
+  justify-content: center;
 }
 
-/* ================= PERIODIC TABLE GRID ================= */
-#periodic-table{
-  --cell: 72px;
-  --gap: 12px;
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
 
+#periodic-table {
   display: grid;
-  grid-template-columns: repeat(18, var(--cell));
-  grid-auto-rows: var(--cell);
-  gap: var(--gap);
-
-  width: max-content;
+  grid-template-columns: repeat(18, minmax(60px, 1fr));
+  gap: 10px;
+  padding: 20px;
   margin: 0 auto;
-  padding: 10px;
+  max-width: 1400px;
 }
+
 
 /* Empty cells preserve spacing */
 .empty-cell{
@@ -302,3 +294,4 @@ main{
     overflow-x: hidden;
   }
 }
+
