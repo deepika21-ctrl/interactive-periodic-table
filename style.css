@@ -57,6 +57,11 @@ header p{
   min-width: 240px;
   outline: none;
 }
+/* Improve dropdown option visibility in dark theme */
+.controls select option{
+  background: #0b0b0b;
+  color: #e5e7eb;
+}
 
 .controls button{
   padding: 12px 14px;
@@ -309,6 +314,7 @@ main{
     overflow-x: hidden;
   }
 }
+
 
 
 
