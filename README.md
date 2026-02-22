@@ -74,9 +74,10 @@ When an element is clicked, the modal displays:
 ---
 
 ## 🔗 Live Demo
-https://deepika21-ctrl.github.io/interactive-periodic-table/
+ https://deepika21-ctrl.github.io/Interactive-Periodic-Table/
 
 ---
 
 ## 👩‍💻 Author
 Built using **HTML, CSS, and JavaScript** as a hands-on learning and portfolio project.
+
